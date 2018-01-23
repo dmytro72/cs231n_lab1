@@ -1,4 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# State files
 *.swp
-*.pyc
+
+# Environment
 .env/*
-cifar-10-batches-py/*
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
