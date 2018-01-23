@@ -29,19 +29,25 @@ def svm_loss_naive(W, X, y, reg):
   for i in xrange(num_train):
     scores = X[i].dot(W)
     correct_class_score = scores[y[i]]
+    error_count = 0
     for j in xrange(num_classes):
       if j == y[i]:
         continue
       margin = scores[j] - correct_class_score + 1 # note delta = 1
       if margin > 0:
         loss += margin
+        error_count += 1
+        dW[:, j] += X[i,:].T
+    dW[:, y[i]] -= error_count * X[i,:].T
 
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
   loss /= num_train
+  dW /= num_train
 
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
+  dW += 2 * reg * W
 
   #############################################################################
   # TODO:                                                                     #
@@ -70,7 +76,10 @@ def svm_loss_vectorized(W, X, y, reg):
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
-  pass
+  scores = X.dot(W)
+  scores = scores - scores[np.arange(y.size), y][:,np.newaxis] + 1
+  scores[scores < 0] = 0
+  loss = (np.sum(scores) - y.size) / y.size + reg * np.sum(W * W)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -85,7 +94,9 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pass
+  scores[scores > 0] = 1
+  scores[np.arange(y.size), y] = - (np.sum(scores, axis=1) - 1)
+  dW = X.T.dot(scores) / y.size + 2 * reg * W
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
