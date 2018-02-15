@@ -34,8 +34,8 @@ def softmax_loss_naive(W, X, y, reg):
     e_sum = 0
     exps = []
     for j, param in enumerate(W.T):
-      power = sample.dot(param)
-      exp = np.exp(power)
+      f = sample.dot(param)
+      exp = np.exp(f)
       exps.append(exp)
       e_sum += exp
       if y[i] == j:
