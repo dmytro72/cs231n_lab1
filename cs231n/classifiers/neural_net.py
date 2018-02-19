@@ -19,7 +19,7 @@ class TwoLayerNet(object):
   The outputs of the second fully-connected layer are the scores for each class.
   """
 
-  def __init__(self, input_size, hidden_size, output_size, std=1e-4):
+  def __init__(self, input_size, hidden_size, output_size, std=1e-4, init='rand'):
     """
     Initialize the model. Weights are initialized to small random values and
     biases are initialized to zero. Weights and biases are stored in the
@@ -34,12 +34,17 @@ class TwoLayerNet(object):
     - input_size: The dimension D of the input data.
     - hidden_size: The number of neurons H in the hidden layer.
     - output_size: The number of classes C.
+    - init: type initialization. 2 variants - random and He
     """
     self.params = {}
-    self.params['W1'] = np.random.randn(input_size, hidden_size) * np.sqrt( 2.0 / input_size)
     self.params['b1'] = np.zeros(hidden_size)
-    self.params['W2'] = np.random.randn(hidden_size, output_size) / np.sqrt(hidden_size)
     self.params['b2'] = np.zeros(output_size)
+    if init == 'rand':
+      self.params['W1'] = std * np.random.randn(input_size, hidden_size)
+      self.params['W2'] = std * np.random.randn(hidden_size, output_size)
+    elif init =='he':
+      self.params['W1'] = np.random.randn(input_size, hidden_size) * np.sqrt(2 / input_size)
+      self.params['W2'] = np.random.randn(hidden_size, output_size) / np.sqrt(hidden_size)
 
   def loss(self, X, y=None, reg=0.0):
     """
@@ -99,7 +104,7 @@ class TwoLayerNet(object):
     Z2 -= np.amax(Z2, axis=1, keepdims=True)  # for numeric stability
     Z2_exp = np.exp(Z2)
     A2 = np.divide(Z2_exp, np.sum(Z2_exp, axis=1, keepdims=True))
-    loss = np.sum(-np.log(A2[np.arange(N), y])) / N + reg * (np.sum(np.square(W1)) + np.sum(np.square(W2))) 
+    loss = -np.sum(np.log(A2[np.arange(N), y])) / N + reg * (np.sum(np.square(W1)) + np.sum(np.square(W2))) 
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -148,7 +153,7 @@ class TwoLayerNet(object):
     - verbose: boolean; if true print progress during optimization.
     """
     num_train = X.shape[0]
-    iterations_per_epoch = max(num_train / batch_size, 1)
+    iterations_per_epoch = max(num_train // batch_size, 1)
 
     # Use SGD to optimize the parameters in self.model
     loss_history = []
